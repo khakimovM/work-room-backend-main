@@ -51,6 +51,7 @@ export class AdminService {
       data: {
         answer_text: questionAnswer.answer_text,
         question_id: questionAnswer.question_id,
+        user_id: questionAnswer.user_id,
       },
     });
     if (questionAnswer?.answer_options) {

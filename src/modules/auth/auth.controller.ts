@@ -14,6 +14,7 @@ import { AuthService } from './auth.service';
 import { LoginAuthDto } from './dto/create-auth.dto';
 import { SendOtpDto } from './dto/send-otp.dto';
 import { VerifySmsCodeDto } from './dto/verify.sms.code.dto';
+import { RegisterDto } from './dto/register-auth.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -44,13 +45,6 @@ export class AuthController {
     return true;
   }
 
-  // @Post()
-  // async register(
-  //   @Body() createAuthDto: CreateAuthDto,
-  //   @Res({ passthrough: true }) res: Response,
-  // ) {
-  // }
-
   @Post('login')
   @HttpCode(200)
   async login(
@@ -69,6 +63,12 @@ export class AuthController {
 
     return { token };
   }
-  @Post()
-  async logout() {}
+  @Post('register')
+  async register(@Body() body: RegisterDto) {
+    try {
+      return await this.authService.register(body);
+    } catch (error) {
+      throw new HttpException(error.message, error.status);
+    }
+  }
 }

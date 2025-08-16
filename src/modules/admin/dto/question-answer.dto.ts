@@ -12,4 +12,6 @@ export class QuestionAnswer {
   answer_text: string;
   @IsOptional()
   answer_options: Array<IAnswerOptions>;
+  @IsString()
+  user_id: string;
 }
