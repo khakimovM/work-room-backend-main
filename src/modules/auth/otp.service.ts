@@ -13,6 +13,11 @@ export class OtpService {
     private eskizService: EskizService,
   ) {}
 
+  getSessionToken() {
+    const token = crypto.randomUUID();
+    return token;
+  }
+
   async canSmsRequest(phone_number: string) {
     const key = `sms:otp:${phone_number}:code`;
     const keyExists = await this.redisService.redis.exists(key);
@@ -35,17 +40,20 @@ export class OtpService {
       message: 'otp sended',
     };
   }
+
   async checkSmsLimit(key: string) {
     const otpKeyHourly = `sms:otp:${key}:limit:hourly`;
     const valueOtpHourly = await this.redisService.getKeyValue(otpKeyHourly);
     if (valueOtpHourly && +valueOtpHourly > this.hourlyOtpAttempts)
       throw new BadRequestException('otp hourly limit reached');
   }
+
   async trackSmsRequest(key: string) {
     const keyOtpHourly = `sms:otp:${key}:limit:hourly`;
     await this.redisService.incrementKey(keyOtpHourly);
     await this.redisService.setExpireKey(keyOtpHourly, this.hourlyTTLExpireOtp);
   }
+
   async recordFailedAttempts(phone_number: string) {
     const keyFailedAttempts = `sms:otp:${phone_number}:failed:attempts`;
     const existsKeyFailedAttempts =
@@ -81,7 +89,19 @@ export class OtpService {
     }
     await this.redisService.delKey(key);
     await this.redisService.delKey(`sms:otp:${phone_number}:failed:attempts`);
+    const sessionToken = this.getSessionToken();
+    const keySessionToken = `session_token:${phone_number}`;
+    await this.redisService.addKey(keySessionToken, sessionToken, 3600);
+    return sessionToken;
   }
+
+  async checkSessionToken(phone_number: string, session_token: string) {
+    const keySessionToken = `session_token:${phone_number}`;
+    const value = await this.redisService.getKeyValue(keySessionToken);
+    if (value === session_token) return true;
+    return false;
+  }
+
   async isBlockedUser(phone_number: string) {
     const keyBlockedUser = `sms:otp:${phone_number}:blocked`;
     const value = await this.redisService.getKeyValue(keyBlockedUser);

@@ -16,12 +16,12 @@ enum QuestionType {
 }
 
 model User {
-  id                String                       @id @default(uuid())
-  email             String                       @unique
-  username          String?                      @unique
-  password          String
-  isProfileComplete Boolean                      @default(false)
-  answers           UserProfileQuestionAnswers[]
+  id                  String                       @id @default(uuid())
+  email               String                       @unique
+  username            String?                      @unique
+  password            String
+  is_profile_complete Boolean                      @default(false)
+  answers             UserProfileQuestionAnswers[]
 
   @@map("users")
 }

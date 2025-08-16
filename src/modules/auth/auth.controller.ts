@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpException,
   Post,
+  Query,
   Req,
   Res,
 } from '@nestjs/common';
@@ -15,6 +16,8 @@ import { LoginAuthDto } from './dto/create-auth.dto';
 import { SendOtpDto } from './dto/send-otp.dto';
 import { VerifySmsCodeDto } from './dto/verify.sms.code.dto';
 import { RegisterDto } from './dto/register-auth.dto';
+import { CheckStepDto } from './dto/check-step.dto';
+import { CheckProfileDto } from './dto/check-profile.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -56,17 +59,36 @@ export class AuthController {
     res.cookie('token', token, {
       httpOnly: true,
       path: '/',
-      maxAge: 60 * 1000,
+      maxAge: 2.05 * 60 * 60 * 1000,
       secure: false,
       sameSite: 'lax',
     });
 
     return { token };
   }
+
   @Post('register')
   async register(@Body() body: RegisterDto) {
     try {
       return await this.authService.register(body);
+    } catch (error) {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
+  @Post('check-step-successfull-complate')
+  async checkStepSuccesfullComplate(@Body() body: CheckStepDto) {
+    try {
+      return await this.authService.checkStepSuccesfullComplate(body);
+    } catch (error) {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
+  @Post('check-profile-complated')
+  async checkProfileComplated(@Body() body: CheckProfileDto) {
+    try {
+      return await this.authService.checkProfileComplated(body);
     } catch (error) {
       throw new HttpException(error.message, error.status);
     }
