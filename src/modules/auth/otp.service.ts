@@ -98,8 +98,8 @@ export class OtpService {
   async checkSessionToken(phone_number: string, session_token: string) {
     const keySessionToken = `session_token:${phone_number}`;
     const value = await this.redisService.getKeyValue(keySessionToken);
-    if (value === session_token) return true;
-    return false;
+    if (value !== session_token)
+      throw new BadRequestException('You must registred again'!);
   }
 
   async isBlockedUser(phone_number: string) {

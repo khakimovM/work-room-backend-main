@@ -22,7 +22,8 @@ export class AdminController {
       throw new HttpException(error.message, error.status);
     }
   }
-  @Get('questions')
+
+  @Get('user-profile/questions')
   async getQuestions(@Query('step_number') step_number: string) {
     try {
       return await this.adminService.getQuestions(+step_number);

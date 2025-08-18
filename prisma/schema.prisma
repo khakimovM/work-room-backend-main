@@ -20,6 +20,7 @@ model User {
   email               String                       @unique
   username            String?                      @unique
   password            String
+  phone_number        String?                      @unique
   is_profile_complete Boolean                      @default(false)
   answers             UserProfileQuestionAnswers[]
 

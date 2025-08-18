@@ -24,6 +24,7 @@ export class AuthService {
   ) {}
   async sendOtp(body: SendOtpDto) {
     const { phone_number } = body;
+    await this.checkPhoneNumber(phone_number);
     const data = await this.otpService.sendSms(phone_number);
     return data;
   }
@@ -62,15 +63,31 @@ export class AuthService {
   }
 
   async register(userData: RegisterDto) {
+    await this.otpService.checkSessionToken(
+      userData.phone_number,
+      userData.session_token,
+    );
     const findEmail = await this.db.prisma.user.findFirst({
       where: { email: userData.email },
     });
     if (findEmail) throw new ConflictException('this email already existed!');
+    await this.checkPhoneNumber(userData.phone_number);
     const hashedPassword = await bcrypt.hash(userData.password, 12);
     const { id, email } = await this.db.prisma.user.create({
-      data: { ...userData, password: hashedPassword },
+      data: {
+        email: userData.email,
+        password: hashedPassword,
+        phone_number: userData.phone_number,
+      },
     });
     return { message: 'success', data: { id, email } };
+  }
+
+  async checkPhoneNumber(phone_number: string) {
+    const findPhone = await this.db.prisma.user.findFirst({
+      where: { phone_number },
+    });
+    if (findPhone) throw new ConflictException('phone number already existed');
   }
 
   async checkStepSuccesfullComplate(body: CheckStepDto) {
