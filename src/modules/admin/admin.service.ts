@@ -47,13 +47,14 @@ export class AdminService {
   }
 
   async addAnswerQuestion(questionAnswer: QuestionAnswer) {
-    await this.db.prisma.userProfileQuestionAnswers.create({
+    const answer = await this.db.prisma.userProfileQuestionAnswers.create({
       data: {
         answer_text: questionAnswer.answer_text,
         question_id: questionAnswer.question_id,
         user_id: questionAnswer.user_id,
       },
     });
+
     if (questionAnswer?.answer_options) {
       const answerOptions = questionAnswer.answer_options.map(
         ({ answer_id, option_id }) => {
@@ -65,10 +66,12 @@ export class AdminService {
           });
         },
       );
-      await Promise.all([...answerOptions]);
-      return {
-        message: 'Answers added',
-      };
+      await Promise.all(answerOptions);
     }
+
+    return {
+      message: 'Answers added',
+      answer_id: answer.id, // response to return created answer id
+    };
   }
 }
